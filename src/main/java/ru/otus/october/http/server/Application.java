@@ -6,6 +6,7 @@ public class Application {
     Реализуйте обработку запросов в отдельных потоках
     **/
     public static void main(String[] args) {
-        new HttpServer(8189).start();
+        HttpServer httpServer = new HttpServer(8189);
+        httpServer.start();
     }
 }
