@@ -5,7 +5,9 @@ import ru.otus.october.http.server.processors.*;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class Dispatcher {
@@ -13,6 +15,7 @@ public class Dispatcher {
     private RequestProcessor defaultNotFoundProcessor;
     private RequestProcessor defaultInternalServerErrorProcessor;
     private RequestProcessor defaultBadRequestProcessor;
+    private RequestProcessor defaultMethodNotAllowedProcessor;
     private ItemsRepository itemsRepository;
 
     public Dispatcher() {
@@ -25,12 +28,18 @@ public class Dispatcher {
         this.defaultNotFoundProcessor = new DefaultNotFoundProcessor();
         this.defaultInternalServerErrorProcessor = new DefaultInternalServerErrorProcessor();
         this.defaultBadRequestProcessor = new DefaultBadRequestProcessor();
+        this.defaultMethodNotAllowedProcessor = new DefaultMethodNotAllowedProcessor();
     }
 
     public void execute(HttpRequest request, OutputStream out) throws IOException {
         try {
+            if (!request.getMethod().equals(HttpMethod.GET) && !request.getMethod().equals(HttpMethod.POST)){
+                defaultMethodNotAllowedProcessor.execute(request,out);
+                return;
+            }
             if (!processors.containsKey(request.getRoutingKey())) {
                 defaultNotFoundProcessor.execute(request, out);
+                System.out.println(!request.getMethod().equals(HttpMethod.GET) && !request.getMethod().equals(HttpMethod.POST));
                 return;
             }
             processors.get(request.getRoutingKey()).execute(request, out);
